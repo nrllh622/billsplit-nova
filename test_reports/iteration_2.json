@@ -1,0 +1,37 @@
+{
+  "summary": "Frontend-only Playwright verification of the new FX + animated-number features in TipCalc Pro on the Expo web preview (375x667). All review_request items pass functionally: animated number transitions show distinct intermediate frames (~80ms/200ms/350ms) before settling at the target value within ~450ms for bill change, tip-chip change, and people-stepper change; FX live conversion via open.er-api.com returns real rates (USD->TRY=46.1261, EUR->TRY=53.2353); display-mode picker shows title 'Show Results In', base-mode picker shows 'Bill Currency'; hero swaps to ₺ with '≈ $118.00 USD' sub-line; switching base to EUR flips bill prefix to € and refetches the rate; when display==base both fx-status and base sub-lines disappear (counts=0) and only one symbol is shown; reset clears bill+tip+people but keeps the currency (EUR retained after reset); custom + 25% chips still function; save-to-history and EUR base-currency preference both persisted across a full reload. The fxStatus 'Loading rate…' transient was not captured because rates were already in the in-memory cache on subsequent picks (expected and acceptable per the request). No red screens or runtime errors. Two pre-existing React Native deprecation warnings observed in the console (shadow* style props, props.pointerEvents). Iteration_1 'Save button hidden under sticky RESET footer' remains and was worked around with scroll.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Save to History button", "issue": "Still overlapped by sticky RESET footer at 375x667 — required a programmatic scroll-to-bottom before clicking. Increase ScrollView contentContainerStyle paddingBottom further or render Save above the footer.", "testID": "save-button", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "index.tsx (results card)", "issues": ["When EUR is selected as base, the bill prefix '€' is centered next to the input without a trailing space — visually fine but worth confirming on RTL/wider symbols."]}
+    ],
+    "react_native_issues": [
+      {"component": "results-card shadow* style", "issue": "Console warning: '\"shadow*\" style props are deprecated. Use \"boxShadow\".' Reference: /app/frontend/app/index.tsx (styles.resultsCard uses shadowColor/shadowOffset/shadowOpacity/shadowRadius)"},
+      {"component": "save-toast View", "issue": "Console warning: 'props.pointerEvents is deprecated. Use style.pointerEvents'. Reference: /app/frontend/app/index.tsx line ~568 (`pointerEvents=\"none\"` on the toast View)"}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Migrate styles.resultsCard from shadow* props to RN >=0.76 `boxShadow` style (or wrap behind Platform.select to preserve native iOS shadows).",
+    "Move `pointerEvents=\"none\"` from prop to `style={{ pointerEvents: 'none' }}` on the save-toast View in index.tsx.",
+    "(Carry-over from iteration_1) Lift the Save-to-History button above the sticky RESET footer, or increase ScrollView paddingBottom so it isn't obscured at 375x667.",
+    "Optional: surface fxStatus 'Loading rate…' for at least one frame even when the cache is warm (e.g., always set 'loading' before reading the cache) to make the transient observable in QA."
+  ],
+  "critical_code_review_comments": [
+    "useAnimatedNumber correctly cancels its previous RAF on retarget and starts from current `value`, producing the smooth intermediate frames we observed.",
+    "fx.ts in-memory cache (1h TTL) is fine for a client demo but is lost on reload — acceptable per the review note that display currency may reset to base after reload.",
+    "Modal mode switch (`pickerMode = 'base' | 'display'`) cleanly reuses the same modal; titles map correctly to 'Bill Currency' / 'Show Results In'.",
+    "isConverting gating (currency.code !== displayCurrency.code) reliably hides fx-status, total-per-person-base, tip-per-person-base, and footer sub-lines — verified count=0 when EUR=EUR.",
+    "handleSave persists `calc.totalBill` / `calc.totalPerPerson` (BASE, pre-FX) plus `currency.code` — matches the requirement that history stores base amounts."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100% (all 11 review items verified or accepted)"},
+  "seed_data_creation": "One history entry created via Save-to-History during the test run (EUR base). Not cleared — main agent can ignore or wipe via the existing history clear-all UI.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "TestIDs verified: bill-amount-input, tip-chip-{10,15,18,20,25}, tip-chip-custom, custom-tip-input, people-increment/decrement/count, round-up-switch, results-card, display-currency-button, currency-picker-button, currency-picker-modal, currency-search-input, currency-row-{CODE}, currency-modal-close, fx-status, total-per-person, total-per-person-base, tip-per-person, tip-per-person-base, total-tip, total-bill, save-button, reset-button, save-toast, history-button. Animation duration ~450ms easeOutCubic; sampling at 80/200/350ms reliably catches intermediate frames. open.er-api.com responded successfully for USD and EUR bases during the run."
+}

@@ -25,6 +25,8 @@ import {
   loadPrefs,
   savePrefs,
 } from "@/src/storage/store";
+import { fetchRate } from "@/src/utils/fx";
+import { useAnimatedNumber } from "@/src/hooks/use-animated-number";
 
 const COLORS = {
   surface: "#0F0F14",
@@ -56,7 +58,15 @@ export default function Home() {
   const [people, setPeople] = useState<number>(1);
   const [roundUp, setRoundUp] = useState<boolean>(false);
   const [currency, setCurrency] = useState<Currency>(CURRENCIES[0]);
+  const [displayCurrency, setDisplayCurrency] = useState<Currency>(
+    CURRENCIES[0],
+  );
   const [pickerOpen, setPickerOpen] = useState<boolean>(false);
+  const [pickerMode, setPickerMode] = useState<"base" | "display">("base");
+  const [fxRate, setFxRate] = useState<number>(1);
+  const [fxStatus, setFxStatus] = useState<
+    "idle" | "loading" | "ok" | "error"
+  >("ok");
   const [search, setSearch] = useState<string>("");
   const [savedToast, setSavedToast] = useState<boolean>(false);
 
@@ -67,7 +77,10 @@ export default function Home() {
     (async () => {
       const prefs = await loadPrefs();
       const found = CURRENCIES.find((c) => c.code === prefs.currencyCode);
-      if (found) setCurrency(found);
+      if (found) {
+        setCurrency(found);
+        setDisplayCurrency(found);
+      }
       setRoundUp(prefs.roundUp);
       prefsLoadedRef.current = true;
     })();
@@ -78,6 +91,33 @@ export default function Home() {
     if (!prefsLoadedRef.current) return;
     savePrefs({ currencyCode: currency.code, roundUp });
   }, [currency.code, roundUp]);
+
+  // Fetch FX rate when base or display currency changes
+  useEffect(() => {
+    let aborted = false;
+    if (currency.code === displayCurrency.code) {
+      setFxRate(1);
+      setFxStatus("ok");
+      return;
+    }
+    setFxStatus("loading");
+    fetchRate(currency.code, displayCurrency.code)
+      .then((rate) => {
+        if (!aborted) {
+          setFxRate(rate);
+          setFxStatus("ok");
+        }
+      })
+      .catch(() => {
+        if (!aborted) {
+          setFxRate(1);
+          setFxStatus("error");
+        }
+      });
+    return () => {
+      aborted = true;
+    };
+  }, [currency.code, displayCurrency.code]);
 
   const tipPercent = useMemo(() => {
     if (selectedTip === "custom") {
@@ -110,13 +150,33 @@ export default function Home() {
     };
   }, [billNum, tipPercent, roundUp, people]);
 
-  const fmt = useCallback(
-    (n: number) => {
-      const s = n.toFixed(2);
-      return `${currency.symbol}${s}`;
-    },
-    [currency.symbol]
+  // Converted (display) values
+  const display = useMemo(
+    () => ({
+      totalTip: calc.totalTip * fxRate,
+      totalBill: calc.totalBill * fxRate,
+      totalPerPerson: calc.totalPerPerson * fxRate,
+      tipPerPerson: calc.tipPerPerson * fxRate,
+    }),
+    [calc, fxRate],
   );
+
+  // Animated metrics (smooth transitions on change)
+  const aTotalPerPerson = useAnimatedNumber(display.totalPerPerson);
+  const aTipPerPerson = useAnimatedNumber(display.tipPerPerson);
+  const aTotalTip = useAnimatedNumber(display.totalTip);
+  const aTotalBill = useAnimatedNumber(display.totalBill);
+
+  const fmtBase = useCallback(
+    (n: number) => `${currency.symbol}${n.toFixed(2)}`,
+    [currency.symbol],
+  );
+  const fmtDisplay = useCallback(
+    (n: number) => `${displayCurrency.symbol}${n.toFixed(2)}`,
+    [displayCurrency.symbol],
+  );
+
+  const isConverting = currency.code !== displayCurrency.code;
 
   const handleTipPress = useCallback((v: ChipValue) => {
     setSelectedTip(v);
@@ -218,7 +278,10 @@ export default function Home() {
                     styles.currencyBtn,
                     pressed && { backgroundColor: COLORS.surfaceTertiary },
                   ]}
-                  onPress={() => setPickerOpen(true)}
+                  onPress={() => {
+                    setPickerMode("base");
+                    setPickerOpen(true);
+                  }}
                 >
                   <Text style={styles.currencyFlag}>{currency.flag}</Text>
                   <Text style={styles.currencyCode}>{currency.code}</Text>
@@ -371,33 +434,89 @@ export default function Home() {
                 </Text>
               </View>
 
+              {/* FX / display currency switcher */}
+              <View style={styles.fxRow}>
+                <Text style={styles.fxLabel}>SHOW IN</Text>
+                <Pressable
+                  testID="display-currency-button"
+                  onPress={() => {
+                    setPickerMode("display");
+                    setPickerOpen(true);
+                  }}
+                  style={({ pressed }) => [
+                    styles.fxChip,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                >
+                  <Text style={styles.fxFlag}>{displayCurrency.flag}</Text>
+                  <Text style={styles.fxCode}>{displayCurrency.code}</Text>
+                  <Ionicons
+                    name="swap-horizontal"
+                    size={12}
+                    color={COLORS.onBrand}
+                  />
+                </Pressable>
+                {isConverting && (
+                  <Text
+                    style={styles.fxStatusText}
+                    testID="fx-status"
+                  >
+                    {fxStatus === "loading"
+                      ? "Loading rate…"
+                      : fxStatus === "error"
+                        ? "Rate unavailable"
+                        : `1 ${currency.code} = ${fxRate.toFixed(4)} ${displayCurrency.code}`}
+                  </Text>
+                )}
+              </View>
+
               <View style={styles.heroBlock}>
                 <Text style={styles.heroLabel}>TOTAL PER PERSON</Text>
                 <Text style={styles.heroMetric} testID="total-per-person">
-                  {fmt(calc.totalPerPerson)}
+                  {fmtDisplay(aTotalPerPerson)}
                 </Text>
+                {isConverting && (
+                  <Text style={styles.heroSub} testID="total-per-person-base">
+                    ≈ {fmtBase(calc.totalPerPerson)} {currency.code}
+                  </Text>
+                )}
               </View>
 
               <View style={styles.subBlock}>
                 <Text style={styles.subLabel}>TIP PER PERSON</Text>
                 <Text style={styles.subMetric} testID="tip-per-person">
-                  {fmt(calc.tipPerPerson)}
+                  {fmtDisplay(aTipPerPerson)}
                 </Text>
+                {isConverting && (
+                  <Text style={styles.subSub} testID="tip-per-person-base">
+                    ≈ {fmtBase(calc.tipPerPerson)} {currency.code}
+                  </Text>
+                )}
               </View>
 
               <View style={styles.resultsFooter}>
                 <View style={styles.footerCell}>
                   <Text style={styles.footerLabel}>TOTAL TIP</Text>
                   <Text style={styles.footerMetric} testID="total-tip">
-                    {fmt(calc.totalTip)}
+                    {fmtDisplay(aTotalTip)}
                   </Text>
+                  {isConverting && (
+                    <Text style={styles.footerSub}>
+                      ≈ {fmtBase(calc.totalTip)}
+                    </Text>
+                  )}
                 </View>
                 <View style={styles.footerDivider} />
                 <View style={styles.footerCell}>
                   <Text style={styles.footerLabel}>TOTAL BILL</Text>
                   <Text style={styles.footerMetric} testID="total-bill">
-                    {fmt(calc.totalBill)}
+                    {fmtDisplay(aTotalBill)}
                   </Text>
+                  {isConverting && (
+                    <Text style={styles.footerSub}>
+                      ≈ {fmtBase(calc.totalBill)}
+                    </Text>
+                  )}
                 </View>
               </View>
             </View>
@@ -474,7 +593,16 @@ export default function Home() {
           >
             <View style={styles.modalHandle} />
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Currency</Text>
+              <View>
+                <Text style={styles.modalTitle}>
+                  {pickerMode === "display" ? "Show Results In" : "Bill Currency"}
+                </Text>
+                <Text style={styles.modalSubtitle}>
+                  {pickerMode === "display"
+                    ? "Convert results to this currency"
+                    : "Currency you're entering the bill in"}
+                </Text>
+              </View>
               <Pressable
                 testID="currency-modal-close"
                 onPress={() => setPickerOpen(false)}
@@ -508,12 +636,22 @@ export default function Home() {
                 <View style={styles.itemSeparator} />
               )}
               renderItem={({ item }) => {
-                const selected = item.code === currency.code;
+                const activeCode =
+                  pickerMode === "display" ? displayCurrency.code : currency.code;
+                const selected = item.code === activeCode;
                 return (
                   <Pressable
                     testID={`currency-row-${item.code}`}
                     onPress={() => {
-                      setCurrency(item);
+                      if (pickerMode === "display") {
+                        setDisplayCurrency(item);
+                      } else {
+                        setCurrency(item);
+                        // keep display in sync if it was equal before
+                        setDisplayCurrency((prev) =>
+                          prev.code === currency.code ? item : prev,
+                        );
+                      }
                       setPickerOpen(false);
                       setSearch("");
                     }}
@@ -621,6 +759,75 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     letterSpacing: 0.5,
     opacity: 0.7,
+  },
+  // FX row in results card
+  fxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 14,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(9,9,13,0.18)",
+    flexWrap: "wrap",
+  },
+  fxLabel: {
+    color: COLORS.onBrand,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 2.5,
+    opacity: 0.7,
+  },
+  fxChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: "rgba(9,9,13,0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(9,9,13,0.22)",
+  },
+  fxFlag: {
+    fontSize: 14,
+  },
+  fxCode: {
+    color: COLORS.onBrand,
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  fxStatusText: {
+    color: COLORS.onBrand,
+    fontSize: 11,
+    fontWeight: "500",
+    opacity: 0.75,
+    flexShrink: 1,
+  },
+  heroSub: {
+    marginTop: 4,
+    color: COLORS.onBrand,
+    opacity: 0.65,
+    fontSize: 12,
+    fontWeight: "500",
+    fontVariant: ["tabular-nums"],
+  },
+  subSub: {
+    marginTop: 2,
+    color: COLORS.onBrand,
+    opacity: 0.6,
+    fontSize: 11,
+    fontWeight: "500",
+    fontVariant: ["tabular-nums"],
+  },
+  footerSub: {
+    marginTop: 2,
+    color: COLORS.onBrand,
+    opacity: 0.6,
+    fontSize: 10,
+    fontWeight: "500",
+    fontVariant: ["tabular-nums"],
   },
   heroBlock: {
     paddingBottom: 14,
@@ -961,6 +1168,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     letterSpacing: 0.5,
+  },
+  modalSubtitle: {
+    color: COLORS.onSurfaceTertiary,
+    fontSize: 12,
+    marginTop: 2,
+    fontWeight: "500",
   },
   searchWrap: {
     flexDirection: "row",
