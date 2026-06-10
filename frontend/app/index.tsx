@@ -25,7 +25,7 @@ import {
   loadPrefs,
   savePrefs,
 } from "@/src/storage/store";
-import { fetchRate } from "@/src/utils/fx";
+import { fetchRatesForBase } from "@/src/utils/fx";
 import { useAnimatedNumber } from "@/src/hooks/use-animated-number";
 
 const COLORS = {
@@ -62,7 +62,15 @@ export default function Home() {
     CURRENCIES[0],
   );
   const [pickerOpen, setPickerOpen] = useState<boolean>(false);
-  const [pickerMode, setPickerMode] = useState<"base" | "display">("base");
+  const [pickerMode, setPickerMode] = useState<"base" | "display" | "person">(
+    "base",
+  );
+  const [personPickerIndex, setPersonPickerIndex] = useState<number>(0);
+  const [splitOpen, setSplitOpen] = useState<boolean>(false);
+  const [personCurrencies, setPersonCurrencies] = useState<Currency[]>([
+    CURRENCIES[0],
+  ]);
+  const [allRates, setAllRates] = useState<Record<string, number>>({});
   const [fxRate, setFxRate] = useState<number>(1);
   const [fxStatus, setFxStatus] = useState<
     "idle" | "loading" | "ok" | "error"
@@ -92,32 +100,45 @@ export default function Home() {
     savePrefs({ currencyCode: currency.code, roundUp });
   }, [currency.code, roundUp]);
 
-  // Fetch FX rate when base or display currency changes
+  // Fetch FX rate when base or display currency changes (also populate full rate table for split view)
   useEffect(() => {
     let aborted = false;
-    if (currency.code === displayCurrency.code) {
-      setFxRate(1);
-      setFxStatus("ok");
-      return;
-    }
     setFxStatus("loading");
-    fetchRate(currency.code, displayCurrency.code)
-      .then((rate) => {
-        if (!aborted) {
-          setFxRate(rate);
-          setFxStatus("ok");
+    fetchRatesForBase(currency.code)
+      .then((rates) => {
+        if (aborted) return;
+        setAllRates(rates);
+        if (currency.code === displayCurrency.code) {
+          setFxRate(1);
+        } else {
+          const norm = displayCurrency.code.replace(/\d+$/, "");
+          const r = rates[norm];
+          setFxRate(typeof r === "number" ? r : 1);
         }
+        setFxStatus("ok");
       })
       .catch(() => {
-        if (!aborted) {
-          setFxRate(1);
-          setFxStatus("error");
-        }
+        if (aborted) return;
+        setAllRates({});
+        setFxRate(1);
+        setFxStatus("error");
       });
     return () => {
       aborted = true;
     };
   }, [currency.code, displayCurrency.code]);
+
+  // Keep per-person currency array length in sync with people count
+  useEffect(() => {
+    setPersonCurrencies((prev) => {
+      if (prev.length === people) return prev;
+      if (prev.length < people) {
+        const fill = Array.from({ length: people - prev.length }, () => currency);
+        return [...prev, ...fill];
+      }
+      return prev.slice(0, people);
+    });
+  }, [people, currency]);
 
   const tipPercent = useMemo(() => {
     if (selectedTip === "custom") {
@@ -521,6 +542,27 @@ export default function Home() {
               </View>
             </View>
 
+            {/* Split View button (multi-currency split) */}
+            {people > 1 && (
+              <Pressable
+                testID="split-view-button"
+                onPress={() => setSplitOpen(true)}
+                style={({ pressed }) => [
+                  styles.splitBtn,
+                  pressed && { backgroundColor: COLORS.surfaceTertiary },
+                ]}
+              >
+                <Ionicons name="people-outline" size={18} color={COLORS.brand} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.splitBtnText}>Split View</Text>
+                  <Text style={styles.splitBtnSub}>
+                    Each of the {people} people in their own currency
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={COLORS.brand} />
+              </Pressable>
+            )}
+
             {/* Save button */}
             <Pressable
               testID="save-button"
@@ -597,12 +639,18 @@ export default function Home() {
             <View style={styles.modalHeader}>
               <View>
                 <Text style={styles.modalTitle}>
-                  {pickerMode === "display" ? "Show Results In" : "Bill Currency"}
+                  {pickerMode === "display"
+                    ? "Show Results In"
+                    : pickerMode === "person"
+                      ? `Currency for Person ${personPickerIndex + 1}`
+                      : "Bill Currency"}
                 </Text>
                 <Text style={styles.modalSubtitle}>
                   {pickerMode === "display"
                     ? "Convert results to this currency"
-                    : "Currency you're entering the bill in"}
+                    : pickerMode === "person"
+                      ? "Their share will be shown in this currency"
+                      : "Currency you're entering the bill in"}
                 </Text>
               </View>
               <Pressable
@@ -639,7 +687,11 @@ export default function Home() {
               )}
               renderItem={({ item }) => {
                 const activeCode =
-                  pickerMode === "display" ? displayCurrency.code : currency.code;
+                  pickerMode === "display"
+                    ? displayCurrency.code
+                    : pickerMode === "person"
+                      ? personCurrencies[personPickerIndex]?.code
+                      : currency.code;
                 const selected = item.code === activeCode;
                 return (
                   <Pressable
@@ -647,6 +699,12 @@ export default function Home() {
                     onPress={() => {
                       if (pickerMode === "display") {
                         setDisplayCurrency(item);
+                      } else if (pickerMode === "person") {
+                        setPersonCurrencies((prev) => {
+                          const next = [...prev];
+                          next[personPickerIndex] = item;
+                          return next;
+                        });
                       } else {
                         setCurrency(item);
                         // keep display in sync if it was equal before
@@ -685,6 +743,147 @@ export default function Home() {
                 </View>
               }
             />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Split View Modal — per-person currency */}
+      <Modal
+        visible={splitOpen}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setSplitOpen(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setSplitOpen(false)}
+          />
+          <View
+            style={[
+              styles.splitSheet,
+              { paddingBottom: Math.max(insets.bottom, 12) },
+            ]}
+            testID="split-view-modal"
+          >
+            <View style={styles.modalHandle} />
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={styles.modalTitle}>Split View</Text>
+                <Text style={styles.modalSubtitle}>
+                  Each person&apos;s share in their own currency
+                </Text>
+              </View>
+              <Pressable
+                testID="split-modal-close"
+                onPress={() => setSplitOpen(false)}
+                hitSlop={10}
+              >
+                <Ionicons name="close" size={22} color={COLORS.onSurface} />
+              </Pressable>
+            </View>
+
+            <View style={styles.splitSummary}>
+              <View style={styles.splitSummaryCell}>
+                <Text style={styles.splitSummaryLabel}>TOTAL BILL</Text>
+                <Text style={styles.splitSummaryValue}>
+                  {fmtBase(calc.totalBill)}
+                </Text>
+              </View>
+              <View style={styles.splitSummaryDivider} />
+              <View style={styles.splitSummaryCell}>
+                <Text style={styles.splitSummaryLabel}>BASE / PERSON</Text>
+                <Text style={styles.splitSummaryValue}>
+                  {fmtBase(calc.totalPerPerson)}
+                </Text>
+              </View>
+            </View>
+
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingBottom: 16 }}
+              keyboardShouldPersistTaps="handled"
+            >
+              {Array.from({ length: people }).map((_, idx) => {
+                const personCur = personCurrencies[idx] || currency;
+                const isBase = personCur.code === currency.code;
+                let rate = 1;
+                if (!isBase) {
+                  const norm = personCur.code.replace(/\d+$/, "");
+                  const r = allRates[norm];
+                  if (typeof r === "number") rate = r;
+                }
+                const personAmount = calc.totalPerPerson * rate;
+                const personTip = calc.tipPerPerson * rate;
+                return (
+                  <View
+                    key={idx}
+                    style={styles.personCard}
+                    testID={`person-row-${idx}`}
+                  >
+                    <View style={styles.personHeader}>
+                      <View style={styles.personAvatar}>
+                        <Text style={styles.personAvatarText}>{idx + 1}</Text>
+                      </View>
+                      <Text style={styles.personLabel}>
+                        Person {idx + 1}
+                      </Text>
+                      <View style={{ flex: 1 }} />
+                      <Pressable
+                        testID={`person-currency-button-${idx}`}
+                        onPress={() => {
+                          setPersonPickerIndex(idx);
+                          setPickerMode("person");
+                          setPickerOpen(true);
+                        }}
+                        style={({ pressed }) => [
+                          styles.personCurrencyChip,
+                          pressed && { opacity: 0.7 },
+                        ]}
+                      >
+                        <Text style={styles.personCurrencyFlag}>
+                          {personCur.flag}
+                        </Text>
+                        <Text style={styles.personCurrencyCode}>
+                          {personCur.code}
+                        </Text>
+                        <Ionicons
+                          name="chevron-down"
+                          size={12}
+                          color={COLORS.onSurfaceTertiary}
+                        />
+                      </Pressable>
+                    </View>
+                    <View style={styles.personAmounts}>
+                      <Text style={styles.personAmountLabel}>THEY PAY</Text>
+                      <Text
+                        style={styles.personAmountBig}
+                        testID={`person-amount-${idx}`}
+                      >
+                        {personCur.symbol}
+                        {personAmount.toFixed(2)}
+                      </Text>
+                      {!isBase && (
+                        <Text style={styles.personAmountSub}>
+                          ≈ {fmtBase(calc.totalPerPerson)} {currency.code} · tip{" "}
+                          {personCur.symbol}
+                          {personTip.toFixed(2)}
+                        </Text>
+                      )}
+                      {isBase && (
+                        <Text style={styles.personAmountSub}>
+                          Tip {fmtBase(calc.tipPerPerson)}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+              <Text style={styles.splitHint}>
+                Tap a flag to change a person&apos;s currency. Rates are live from
+                exchangerate-api.
+              </Text>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -737,10 +936,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: 4,
     marginBottom: 16,
-    shadowColor: COLORS.brand,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
+    boxShadow: "0px 8px 24px rgba(167, 139, 250, 0.30)",
     elevation: 8,
   },
   resultsHeader: {
@@ -1088,6 +1284,158 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 13,
     letterSpacing: 1.5,
+  },
+  // Split View button
+  splitBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.brand,
+    backgroundColor: COLORS.surfaceSecondary,
+    marginBottom: 10,
+  },
+  splitBtnText: {
+    color: COLORS.brand,
+    fontSize: 13,
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  splitBtnSub: {
+    color: COLORS.onSurfaceTertiary,
+    fontSize: 11,
+    marginTop: 2,
+  },
+  // Split sheet (modal)
+  splitSheet: {
+    backgroundColor: COLORS.surface,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    height: "92%",
+    borderTopWidth: 1,
+    borderColor: COLORS.border,
+  },
+  splitSummary: {
+    flexDirection: "row",
+    backgroundColor: COLORS.surfaceSecondary,
+    marginHorizontal: 16,
+    borderRadius: 10,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: 12,
+  },
+  splitSummaryCell: {
+    flex: 1,
+  },
+  splitSummaryDivider: {
+    width: 1,
+    backgroundColor: COLORS.border,
+    marginHorizontal: 12,
+  },
+  splitSummaryLabel: {
+    color: COLORS.onSurfaceTertiary,
+    fontSize: 10,
+    letterSpacing: 2,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  splitSummaryValue: {
+    color: COLORS.onSurface,
+    fontSize: 18,
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
+  },
+  personCard: {
+    marginHorizontal: 16,
+    marginBottom: 10,
+    padding: 14,
+    backgroundColor: COLORS.surfaceSecondary,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  personHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 10,
+  },
+  personAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.brand,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  personAvatarText: {
+    color: COLORS.onBrand,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  personLabel: {
+    color: COLORS.onSurface,
+    fontSize: 14,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  personCurrencyChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: COLORS.surfaceTertiary,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  personCurrencyFlag: {
+    fontSize: 16,
+  },
+  personCurrencyCode: {
+    color: COLORS.onSurface,
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  personAmounts: {
+    paddingTop: 6,
+    paddingBottom: 2,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  personAmountLabel: {
+    color: COLORS.onSurfaceTertiary,
+    fontSize: 10,
+    letterSpacing: 2,
+    fontWeight: "700",
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  personAmountBig: {
+    color: COLORS.brand,
+    fontSize: 26,
+    fontWeight: "800",
+    letterSpacing: -0.5,
+    fontVariant: ["tabular-nums"],
+  },
+  personAmountSub: {
+    color: COLORS.onSurfaceTertiary,
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: "500",
+  },
+  splitHint: {
+    color: COLORS.onSurfaceTertiary,
+    fontSize: 11,
+    paddingHorizontal: 16,
+    paddingTop: 4,
+    fontStyle: "italic",
   },
   // Footer
   footer: {
