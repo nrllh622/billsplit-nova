@@ -1,0 +1,135 @@
+{
+  "app_name": "TipCalc Pro",
+  "personality": "7 Dark-First Utility DARK",
+  "personality_one_liner": "A sleek, command-center utility calculator driven by sharp typography, tactical metrics, and OLED-friendly neon purple accents.",
+  "color": {
+    "surface": "#0F0F14",
+    "onSurface": "#E2E2E8",
+    "surfaceSecondary": "#1A1A24",
+    "onSurfaceSecondary": "#C5C5D2",
+    "surfaceTertiary": "#252533",
+    "onSurfaceTertiary": "#A0A0B0",
+    "surfaceInverse": "#FFFFFF",
+    "onSurfaceInverse": "#0F0F14",
+    "brand": "#A78BFA",
+    "brandPrimary": "#A78BFA",
+    "onBrandPrimary": "#09090D",
+    "brandSecondary": "#C4B5FD",
+    "onBrandSecondary": "#09090D",
+    "brandTertiary": "#8B5CF6",
+    "onBrandTertiary": "#FFFFFF",
+    "success": "#34D399",
+    "onSuccess": "#062C1D",
+    "warning": "#FBBF24",
+    "onWarning": "#3B2A05",
+    "error": "#F87171",
+    "onError": "#3E0B0B",
+    "info": "#60A5FA",
+    "onInfo": "#0A2142",
+    "border": "#2E2E3E",
+    "borderStrong": "#4B4B63",
+    "divider": "#252533"
+  },
+  "typography": {
+    "displayFontFamily": "Rajdhani",
+    "textFontFamily": "DM Sans",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Use precise, tight spacing for dense calculation states. Leverage dividers and tonal shifts over margins to group inputs.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 4,
+    "md": 8,
+    "lg": 12,
+    "pill": 999
+  },
+  "shadow_tier": "0",
+  "navigation": "stack_only",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": "false",
+    "do's": [
+      "Keep everything flat and tactical",
+      "Use dividers and sharp borders"
+    ],
+    "dont's": [
+      "Do not use glass or blur effects in Dark-First Utility",
+      "Avoid soft shadows or overlaps"
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-blur",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Home",
+      "purpose": "Live tip calculator, input interface, and primary metric display.",
+      "states": {
+        "loading": "Spinner in the center of the dark OLED screen.",
+        "empty": "N/A - Inputs default to 0.00.",
+        "error": "Toast with error (e.g. invalid amount) and a dismiss option."
+      },
+      "layout": "Stack layout. Top: 'Live Results Card' showcasing huge Rajdhani metrics for Total/Person and Tip/Person. Middle: 'Bill Amount' input field (extra large text, native numeric keyboard) paired with an inline 'Currency Picker' trigger button. Lower: Dense grid/row of tip percentage chips (10, 15, 18, 20, 25, custom). Next: Stepper for 'Number of People' and a sharp toggle switch for 'Round Up'. Bottom: Sticky 'Reset' button and a link/icon to view 'History'."
+    },
+    {
+      "name": "Currency Picker Modal",
+      "purpose": "Fast, searchable selection of 150+ world currencies.",
+      "states": {
+        "loading": "Skeleton rows of currency items.",
+        "empty": "No results found state with a subtle neon purple accented illustration/icon.",
+        "error": "Error fetching currencies (if applicable)."
+      },
+      "layout": "Bottom sheet modal (@gorhom/bottom-sheet). Top header: title and close button. Next: Search bar (surfaceTertiary background). Body: Scrollable list of currencies. Each row: Flag emoji (left), Currency Code + Name (center), Checkmark if selected (right). Very dense and scannable list."
+    },
+    {
+      "name": "History",
+      "purpose": "View recent bill split calculations.",
+      "states": {
+        "loading": "List skeletons.",
+        "empty": "Centered abstract neon purple texture background with 'No past splits' message.",
+        "error": "Error message with retry button."
+      },
+      "layout": "Standard stack screen with a back button. Vertical list of past splits (cards displaying Date, Total Bill, Tip %, Total/Person, and People count). Strict dividers between list items. Uses AsyncStorage."
+    }
+  ],
+  "images": {
+    "history_empty_state_bg": {
+      "url": "https://images.pexels.com/photos/8108729/pexels-photo-8108729.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "dark": "https://images.pexels.com/photos/8108729/pexels-photo-8108729.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Dark abstract neon purple texture"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the Dark-First Utility personality (sharp, flat, OLED-friendly). Do not use soft glassmorphism; use sharp borders (border/borderStrong) and tonal elevation.",
+    "The primary accent is Neon Purple (#A78BFA). Use it sparingly for selected chips, the Round Up toggle active state, and key highlights.",
+    "Use 'Rajdhani' for all numbers and metrics. Use 'DM Sans' for labels, body text, and buttons. Make sure weight caps at 500.",
+    "For the Currency Picker, the user explicitly requested flag emojis. This is the ONLY place where emojis are permitted.",
+    "Ensure 'Round Up' toggles logic correctly affects the total and persists preference via AsyncStorage.",
+    "When a user selects a tip percentage, highlight that chip with brandPrimary background and onBrandPrimary text.",
+    "Implement the 'History' screen to read/write past calculations from AsyncStorage.",
+    "Add a vertical gradient scrim over the 'history_empty_state_bg' image if it is used, fading from transparent to surface Inverse at the bottom, per the zero tolerance Imagery_and_Texture rule."
+  ]
+}
