@@ -12,7 +12,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
-  TouchableWithoutFeedback,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -199,16 +198,16 @@ export default function Home() {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{
-              padding: 16,
-              paddingBottom: 120 + insets.bottom,
-            }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            padding: 16,
+            paddingBottom: 180 + insets.bottom,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          onScrollBeginDrag={Keyboard.dismiss}
+        >
             {/* Live Results Card */}
             <View style={styles.resultsCard} testID="results-card">
               <View style={styles.resultsRow}>
@@ -408,8 +407,7 @@ export default function Home() {
               <Ionicons name="bookmark-outline" size={16} color={COLORS.brand} />
               <Text style={styles.saveBtnText}>Save to History</Text>
             </Pressable>
-          </ScrollView>
-        </TouchableWithoutFeedback>
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {/* Sticky Reset Footer */}
