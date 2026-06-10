@@ -262,7 +262,7 @@ export default function Home() {
           style={{ flex: 1 }}
           contentContainerStyle={{
             padding: 16,
-            paddingBottom: 220 + insets.bottom,
+            paddingBottom: 300 + insets.bottom,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -563,9 +563,11 @@ export default function Home() {
       {/* Toast */}
       {savedToast && (
         <View
-          style={[styles.toast, { bottom: insets.bottom + 88 }]}
+          style={[
+            styles.toast,
+            { bottom: insets.bottom + 88, pointerEvents: "none" },
+          ]}
           testID="save-toast"
-          pointerEvents="none"
         >
           <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
           <Text style={styles.toastText}>Saved to history</Text>
