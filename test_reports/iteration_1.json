@@ -1,0 +1,33 @@
+{
+  "summary": "Frontend-only Playwright testing of TipCalc Pro Expo web preview at 375x667. Verified default-18% chip, live calculation, tip chip switching (10/15/18/20/25), custom tip flow, reset behavior, people stepper (1..99 with correct division), round-up toggle (12.5% on $100 -> $113 bill / $13 tip), currency picker modal with search + INR selection, navigation to /history, populated list rendering, clear-all, back navigation, preference persistence across reload (INR + round-up persisted via AsyncStorage), and save guard when bill==0 (no toast). One UX flaw: Save-to-History button visually obscured by the sticky RESET footer; functional save was reachable with force-click on first attempt of the flow but a later attempt failed to surface the toast within 2.5s in the same run (likely because the Pressable was off-screen behind the footer and ScrollView did not scroll it into view).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Save to History button", "issue": "Sticky RESET footer (position: absolute, height ~76px + bottom padding) overlaps the Save-to-History Pressable at the end of the ScrollView. On a 375x667 viewport the Save button sits behind/under the RESET footer making it hard to tap and visually hidden. Increase ScrollView contentContainerStyle paddingBottom (currently 120) or move Save button above the sticky footer.", "testID": "save-button", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "index.tsx", "issues": ["Save button overlapped by sticky reset footer at small viewports", "Console warning: TouchableWithoutFeedback is deprecated — replace with Pressable on the keyboard-dismiss wrapper"]}
+    ],
+    "react_native_issues": [
+      {"component": "TouchableWithoutFeedback (keyboard dismiss wrapper)", "issue": "Deprecated component; React Native recommends Pressable"}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Increase ScrollView paddingBottom in index.tsx (e.g., 160 + insets.bottom) OR render the Save-to-History button outside/above the sticky reset footer so it is not obscured.",
+    "Replace deprecated TouchableWithoutFeedback in index.tsx with Pressable to silence runtime warnings."
+  ],
+  "critical_code_review_comments": [
+    "Pure client-side app; no backend touched. AsyncStorage-backed persistence is correctly wired with a prefsLoadedRef guard to avoid overwriting defaults on first render.",
+    "currencies list, search filtering, modal, and history limit (50) all look fine.",
+    "Round-up math correctly adjusts totalTip = ceil(total) - bill — verified $112.50 -> $113.00 with tip $13.00."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "92%"},
+  "seed_data_creation": "Test-only history entry created and then cleared via UI; no residual state.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All testIDs documented in review_request are present and functional. Only nit: the Save-to-History button can sit behind the sticky RESET footer on small viewports. Currency picker scrolls through 150+ entries; search by 'Indian' correctly filters to INR. Prefs persistence verified by reload after switching currency to INR and toggling round-up on — both survived.",
+  "rca_of_issue": "Save toast intermittently not observable: the Save Pressable is positioned at the bottom of the ScrollView content but the sticky absolute footer (RESET) occupies the same screen region. With force=True Playwright still dispatches the synthetic click and the handler runs, but in our second flow the element was outside the visible scroll region. Recommend lifting Save above the sticky footer or increasing bottom padding."
+}
