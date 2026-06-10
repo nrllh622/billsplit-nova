@@ -202,45 +202,12 @@ export default function Home() {
           style={{ flex: 1 }}
           contentContainerStyle={{
             padding: 16,
-            paddingBottom: 180 + insets.bottom,
+            paddingBottom: 220 + insets.bottom,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           onScrollBeginDrag={Keyboard.dismiss}
         >
-            {/* Live Results Card */}
-            <View style={styles.resultsCard} testID="results-card">
-              <View style={styles.resultsRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.resultsLabel}>TOTAL / PERSON</Text>
-                  <Text style={styles.bigMetric} testID="total-per-person">
-                    {fmt(calc.totalPerPerson)}
-                  </Text>
-                </View>
-                <View style={styles.divider} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.resultsLabel}>TIP / PERSON</Text>
-                  <Text style={styles.bigMetric} testID="tip-per-person">
-                    {fmt(calc.tipPerPerson)}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.resultsFooter}>
-                <View style={styles.footerCell}>
-                  <Text style={styles.resultsLabel}>TOTAL TIP</Text>
-                  <Text style={styles.smallMetric} testID="total-tip">
-                    {fmt(calc.totalTip)}
-                  </Text>
-                </View>
-                <View style={styles.footerCell}>
-                  <Text style={styles.resultsLabel}>TOTAL BILL</Text>
-                  <Text style={styles.smallMetric} testID="total-bill">
-                    {fmt(calc.totalBill)}
-                  </Text>
-                </View>
-              </View>
-            </View>
-
             {/* Bill Amount */}
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>BILL AMOUNT</Text>
@@ -391,6 +358,48 @@ export default function Home() {
                 thumbColor={roundUp ? COLORS.brand : "#7C7C8E"}
                 ios_backgroundColor={COLORS.surfaceTertiary}
               />
+            </View>
+
+            {/* Live Results Card (purple) */}
+            <View style={styles.resultsCard} testID="results-card">
+              <View style={styles.resultsHeader}>
+                <Ionicons name="cash-outline" size={14} color={COLORS.onBrand} />
+                <Text style={styles.resultsHeaderText}>RESULT</Text>
+                <View style={{ flex: 1 }} />
+                <Text style={styles.resultsHeaderMeta}>
+                  {tipPercent}% · {people} {people === 1 ? "person" : "people"}
+                </Text>
+              </View>
+
+              <View style={styles.heroBlock}>
+                <Text style={styles.heroLabel}>TOTAL PER PERSON</Text>
+                <Text style={styles.heroMetric} testID="total-per-person">
+                  {fmt(calc.totalPerPerson)}
+                </Text>
+              </View>
+
+              <View style={styles.subBlock}>
+                <Text style={styles.subLabel}>TIP PER PERSON</Text>
+                <Text style={styles.subMetric} testID="tip-per-person">
+                  {fmt(calc.tipPerPerson)}
+                </Text>
+              </View>
+
+              <View style={styles.resultsFooter}>
+                <View style={styles.footerCell}>
+                  <Text style={styles.footerLabel}>TOTAL TIP</Text>
+                  <Text style={styles.footerMetric} testID="total-tip">
+                    {fmt(calc.totalTip)}
+                  </Text>
+                </View>
+                <View style={styles.footerDivider} />
+                <View style={styles.footerCell}>
+                  <Text style={styles.footerLabel}>TOTAL BILL</Text>
+                  <Text style={styles.footerMetric} testID="total-bill">
+                    {fmt(calc.totalBill)}
+                  </Text>
+                </View>
+              </View>
             </View>
 
             {/* Save button */}
@@ -579,52 +588,105 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  // Results card
+  // Results card (purple hero)
   resultsCard: {
-    backgroundColor: COLORS.surfaceSecondary,
-    borderRadius: 12,
+    backgroundColor: COLORS.brandTertiary,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: 16,
+    borderColor: COLORS.brand,
+    padding: 20,
+    marginTop: 4,
     marginBottom: 16,
+    shadowColor: COLORS.brand,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  resultsRow: {
+  resultsHeader: {
     flexDirection: "row",
-    alignItems: "stretch",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 12,
   },
-  divider: {
-    width: 1,
-    backgroundColor: COLORS.border,
-    marginHorizontal: 12,
+  resultsHeaderText: {
+    color: COLORS.onBrand,
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 2.5,
   },
-  resultsLabel: {
-    color: COLORS.onSurfaceTertiary,
-    fontSize: 10,
-    letterSpacing: 2,
+  resultsHeaderMeta: {
+    color: COLORS.onBrand,
+    fontSize: 11,
     fontWeight: "600",
-    marginBottom: 6,
+    letterSpacing: 0.5,
+    opacity: 0.7,
   },
-  bigMetric: {
-    color: COLORS.brand,
+  heroBlock: {
+    paddingBottom: 14,
+  },
+  heroLabel: {
+    color: COLORS.onBrand,
+    opacity: 0.7,
+    fontSize: 10,
+    letterSpacing: 2.5,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  heroMetric: {
+    color: COLORS.onBrand,
+    fontSize: 44,
+    fontWeight: "800",
+    letterSpacing: -1.2,
+    fontVariant: ["tabular-nums"],
+  },
+  subBlock: {
+    paddingTop: 12,
+    paddingBottom: 14,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(9,9,13,0.18)",
+  },
+  subLabel: {
+    color: COLORS.onBrand,
+    opacity: 0.7,
+    fontSize: 10,
+    letterSpacing: 2.5,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  subMetric: {
+    color: COLORS.onBrand,
     fontSize: 28,
     fontWeight: "700",
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
     fontVariant: ["tabular-nums"],
   },
   resultsFooter: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    marginTop: 16,
+    borderTopColor: "rgba(9,9,13,0.18)",
     paddingTop: 12,
   },
   footerCell: {
     flex: 1,
   },
-  smallMetric: {
-    color: COLORS.onSurface,
+  footerDivider: {
+    width: 1,
+    backgroundColor: "rgba(9,9,13,0.18)",
+    marginHorizontal: 12,
+  },
+  footerLabel: {
+    color: COLORS.onBrand,
+    opacity: 0.7,
+    fontSize: 10,
+    letterSpacing: 2,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  footerMetric: {
+    color: COLORS.onBrand,
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "700",
     fontVariant: ["tabular-nums"],
   },
   // Sections
