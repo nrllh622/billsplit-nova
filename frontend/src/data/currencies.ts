@@ -6,6 +6,28 @@ export type Currency = {
   flag: string;
 };
 
+// Hard-coded flag-emoji mapping for the most-used currencies.
+// `getCurrencyFlag(code)` always returns the correct emoji and is used to
+// render rows in the picker — guaranteeing flag + code rendering everywhere.
+export const currencyFlags: Record<string, string> = {
+  USD: "🇺🇸", EUR: "🇪🇺", GBP: "🇬🇧", TRY: "🇹🇷", JPY: "🇯🇵",
+  AUD: "🇦🇺", CAD: "🇨🇦", CHF: "🇨🇭", CNY: "🇨🇳", AED: "🇦🇪",
+  SAR: "🇸🇦", INR: "🇮🇳", KRW: "🇰🇷", BRL: "🇧🇷", MXN: "🇲🇽",
+  SEK: "🇸🇪", NOK: "🇳🇴", DKK: "🇩🇰", PLN: "🇵🇱", SGD: "🇸🇬",
+  HKD: "🇭🇰", NZD: "🇳🇿", ZAR: "🇿🇦", THB: "🇹🇭", MYR: "🇲🇾",
+  IDR: "🇮🇩", PHP: "🇵🇭", RUB: "🇷🇺", PKR: "🇵🇰", VND: "🇻🇳",
+  EGP: "🇪🇬", NGN: "🇳🇬", KES: "🇰🇪", QAR: "🇶🇦", KWD: "🇰🇼",
+  BHD: "🇧🇭", OMR: "🇴🇲", JOD: "🇯🇴", CZK: "🇨🇿", HUF: "🇭🇺",
+  RON: "🇷🇴", BGN: "🇧🇬", HRK: "🇭🇷", ILS: "🇮🇱", CLP: "🇨🇱",
+  COP: "🇨🇴", PEN: "🇵🇪", ARS: "🇦🇷", UAH: "🇺🇦", GEL: "🇬🇪",
+};
+
+export function getCurrencyFlag(code: string): string {
+  // Strip our internal numeric suffixes (e.g. EUR2 → EUR).
+  const base = code.replace(/\d+$/, "");
+  return currencyFlags[base] || CURRENCIES.find((c) => c.code === code)?.flag || "🏳️";
+}
+
 export const CURRENCIES: Currency[] = [
   { code: "USD", name: "US Dollar", symbol: "$", flag: "🇺🇸" },
   { code: "EUR", name: "Euro", symbol: "€", flag: "🇪🇺" },

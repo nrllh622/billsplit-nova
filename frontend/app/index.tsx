@@ -18,7 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 
-import { CURRENCIES, Currency } from "@/src/data/currencies";
+import { CURRENCIES, Currency, getCurrencyFlag } from "@/src/data/currencies";
 import {
   addHistory,
   HistoryItem,
@@ -258,7 +258,7 @@ export default function Home() {
       {/* Header */}
       <View style={styles.header} testID="app-header">
         <View>
-          <Text style={styles.brandTitle}>TipSplit Nova</Text>
+          <Text style={styles.brandTitle}>BillSplit Nova</Text>
           <Text style={styles.brandSub}>PRO · UTILITY</Text>
         </View>
         <Pressable
@@ -304,7 +304,7 @@ export default function Home() {
                     setPickerOpen(true);
                   }}
                 >
-                  <Text style={styles.currencyFlag}>{currency.flag}</Text>
+                  <Text style={styles.currencyFlag}>{getCurrencyFlag(currency.code)}</Text>
                   <Text style={styles.currencyCode}>{currency.code}</Text>
                   <Ionicons
                     name="chevron-down"
@@ -469,7 +469,7 @@ export default function Home() {
                     pressed && { opacity: 0.7 },
                   ]}
                 >
-                  <Text style={styles.fxFlag}>{displayCurrency.flag}</Text>
+                  <Text style={styles.fxFlag}>{getCurrencyFlag(displayCurrency.code)}</Text>
                   <Text style={styles.fxCode}>{displayCurrency.code}</Text>
                   <Ionicons
                     name="swap-horizontal"
@@ -718,7 +718,7 @@ export default function Home() {
                       pressed && { backgroundColor: COLORS.surfaceTertiary },
                     ]}
                   >
-                    <Text style={styles.currencyRowFlag}>{item.flag}</Text>
+                    <Text style={styles.currencyRowFlag}>{getCurrencyFlag(item.code)}</Text>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.currencyRowCode}>{item.code}</Text>
                       <Text style={styles.currencyRowName}>{item.name}</Text>
@@ -840,7 +840,7 @@ export default function Home() {
                         ]}
                       >
                         <Text style={styles.personCurrencyFlag}>
-                          {personCur.flag}
+                          {getCurrencyFlag(personCur.code)}
                         </Text>
                         <Text style={styles.personCurrencyCode}>
                           {personCur.code}
