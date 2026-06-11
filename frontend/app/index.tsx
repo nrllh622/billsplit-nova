@@ -29,8 +29,8 @@ import { fetchRatesForBase } from "@/src/utils/fx";
 import { useAnimatedNumber } from "@/src/hooks/use-animated-number";
 
 const COLORS = {
-  surface: "#0F0F14",
-  surfaceSecondary: "#1A1A24",
+  surface: "#1a1a2e",
+  surfaceSecondary: "#16213e",
   surfaceTertiary: "#252533",
   onSurface: "#E2E2E8",
   onSurfaceSecondary: "#C5C5D2",
@@ -447,7 +447,7 @@ export default function Home() {
             {/* Live Results Card (purple) */}
             <View style={styles.resultsCard} testID="results-card">
               <View style={styles.resultsHeader}>
-                <Ionicons name="cash-outline" size={14} color={COLORS.onBrand} />
+                <Ionicons name="cash-outline" size={14} color="#FFFFFF" />
                 <Text style={styles.resultsHeaderText}>RESULT</Text>
                 <View style={{ flex: 1 }} />
                 <Text style={styles.resultsHeaderMeta}>
@@ -474,7 +474,7 @@ export default function Home() {
                   <Ionicons
                     name="swap-horizontal"
                     size={12}
-                    color={COLORS.onBrand}
+                    color="#FFFFFF"
                   />
                 </Pressable>
                 {isConverting && (
@@ -574,7 +574,7 @@ export default function Home() {
                 pressed && billNum > 0 && { backgroundColor: COLORS.surfaceTertiary },
               ]}
             >
-              <Ionicons name="bookmark-outline" size={16} color={COLORS.brand} />
+              <Ionicons name="bookmark-outline" size={16} color="#FFFFFF" />
               <Text style={styles.saveBtnText}>Save to History</Text>
             </Pressable>
         </ScrollView>
@@ -597,7 +597,7 @@ export default function Home() {
             pressed && { backgroundColor: COLORS.brandTertiary },
           ]}
         >
-          <Ionicons name="refresh" size={18} color={COLORS.onBrand} />
+          <Ionicons name="refresh" size={18} color="#FFFFFF" />
           <Text style={styles.resetBtnText}>RESET</Text>
         </Pressable>
       </View>
@@ -929,7 +929,7 @@ const styles = StyleSheet.create({
   },
   // Results card (purple hero)
   resultsCard: {
-    backgroundColor: COLORS.brandTertiary,
+    backgroundColor: "#7C3AED",
     borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.brand,
@@ -946,13 +946,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   resultsHeaderText: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     fontSize: 11,
     fontWeight: "700",
     letterSpacing: 2.5,
   },
   resultsHeaderMeta: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     fontSize: 11,
     fontWeight: "600",
     letterSpacing: 0.5,
@@ -970,7 +970,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   fxLabel: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 2.5,
@@ -991,13 +991,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   fxCode: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 0.5,
   },
   fxStatusText: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     fontSize: 11,
     fontWeight: "500",
     opacity: 0.75,
@@ -1005,7 +1005,7 @@ const styles = StyleSheet.create({
   },
   heroSub: {
     marginTop: 4,
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     opacity: 0.65,
     fontSize: 12,
     fontWeight: "500",
@@ -1013,7 +1013,7 @@ const styles = StyleSheet.create({
   },
   subSub: {
     marginTop: 2,
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     opacity: 0.6,
     fontSize: 11,
     fontWeight: "500",
@@ -1021,7 +1021,7 @@ const styles = StyleSheet.create({
   },
   footerSub: {
     marginTop: 2,
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     opacity: 0.6,
     fontSize: 10,
     fontWeight: "500",
@@ -1031,7 +1031,7 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
   },
   heroLabel: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     opacity: 0.7,
     fontSize: 10,
     letterSpacing: 2.5,
@@ -1039,7 +1039,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   heroMetric: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     fontSize: 44,
     fontWeight: "800",
     letterSpacing: -1.2,
@@ -1052,7 +1052,7 @@ const styles = StyleSheet.create({
     borderTopColor: "rgba(9,9,13,0.18)",
   },
   subLabel: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     opacity: 0.7,
     fontSize: 10,
     letterSpacing: 2.5,
@@ -1060,7 +1060,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   subMetric: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     fontSize: 28,
     fontWeight: "700",
     letterSpacing: -0.4,
@@ -1081,7 +1081,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
   footerLabel: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     opacity: 0.7,
     fontSize: 10,
     letterSpacing: 2,
@@ -1089,7 +1089,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   footerMetric: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "700",
     fontVariant: ["tabular-nums"],
@@ -1276,11 +1276,11 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.brand,
-    backgroundColor: "transparent",
+    borderColor: "#7C3AED",
+    backgroundColor: "#7C3AED",
   },
   saveBtnText: {
-    color: COLORS.brand,
+    color: "#FFFFFF",
     fontWeight: "700",
     fontSize: 13,
     letterSpacing: 1.5,
@@ -1450,7 +1450,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   resetBtn: {
-    backgroundColor: COLORS.brand,
+    backgroundColor: "#7C3AED",
     borderRadius: 8,
     height: 52,
     flexDirection: "row",
@@ -1459,7 +1459,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   resetBtnText: {
-    color: COLORS.onBrand,
+    color: "#FFFFFF",
     fontWeight: "700",
     fontSize: 14,
     letterSpacing: 2,

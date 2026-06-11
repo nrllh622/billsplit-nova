@@ -19,8 +19,8 @@ import {
 } from "@/src/storage/store";
 
 const COLORS = {
-  surface: "#0F0F14",
-  surfaceSecondary: "#1A1A24",
+  surface: "#1a1a2e",
+  surfaceSecondary: "#16213e",
   surfaceTertiary: "#252533",
   onSurface: "#E2E2E8",
   onSurfaceSecondary: "#C5C5D2",
