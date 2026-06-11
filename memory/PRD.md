@@ -1,4 +1,4 @@
-# TipCalc Pro — PRD
+# TipSplit Nova — PRD
 
 ## Product
 A sleek, dark-themed mobile tip calculator (React Native Expo, SDK 54).

@@ -258,7 +258,7 @@ export default function Home() {
       {/* Header */}
       <View style={styles.header} testID="app-header">
         <View>
-          <Text style={styles.brandTitle}>TipCalc</Text>
+          <Text style={styles.brandTitle}>TipSplit Nova</Text>
           <Text style={styles.brandSub}>PRO · UTILITY</Text>
         </View>
         <Pressable
@@ -283,7 +283,7 @@ export default function Home() {
           style={{ flex: 1 }}
           contentContainerStyle={{
             padding: 16,
-            paddingBottom: 300 + insets.bottom,
+            paddingBottom: 200 + insets.bottom,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -562,21 +562,6 @@ export default function Home() {
                 <Ionicons name="chevron-forward" size={16} color={COLORS.brand} />
               </Pressable>
             )}
-
-            {/* Save button */}
-            <Pressable
-              testID="save-button"
-              onPress={handleSave}
-              disabled={billNum <= 0}
-              style={({ pressed }) => [
-                styles.saveBtn,
-                billNum <= 0 && { opacity: 0.4 },
-                pressed && billNum > 0 && { backgroundColor: COLORS.surfaceTertiary },
-              ]}
-            >
-              <Ionicons name="bookmark-outline" size={16} color="#FFFFFF" />
-              <Text style={styles.saveBtnText}>Save to History</Text>
-            </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -590,11 +575,24 @@ export default function Home() {
         ]}
       >
         <Pressable
+          testID="save-button"
+          onPress={handleSave}
+          disabled={billNum <= 0}
+          style={({ pressed }) => [
+            styles.saveBtn,
+            billNum <= 0 && { opacity: 0.4 },
+            pressed && billNum > 0 && { opacity: 0.85 },
+          ]}
+        >
+          <Ionicons name="bookmark-outline" size={16} color="#FFFFFF" />
+          <Text style={styles.saveBtnText}>Save to History</Text>
+        </Pressable>
+        <Pressable
           testID="reset-button"
           onPress={handleReset}
           style={({ pressed }) => [
             styles.resetBtn,
-            pressed && { backgroundColor: COLORS.brandTertiary },
+            pressed && { opacity: 0.85 },
           ]}
         >
           <Ionicons name="refresh" size={18} color="#FFFFFF" />
@@ -929,14 +927,14 @@ const styles = StyleSheet.create({
   },
   // Results card (purple hero)
   resultsCard: {
-    backgroundColor: "#7C3AED",
+    backgroundColor: "#0F4C5C",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.brand,
+    borderColor: "#0F4C5C",
     padding: 20,
     marginTop: 4,
     marginBottom: 16,
-    boxShadow: "0px 8px 24px rgba(167, 139, 250, 0.30)",
+    boxShadow: "0px 8px 24px rgba(15, 76, 92, 0.35)",
     elevation: 8,
   },
   resultsHeader: {
@@ -1268,7 +1266,6 @@ const styles = StyleSheet.create({
   },
   // Save
   saveBtn: {
-    marginTop: 4,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -1276,8 +1273,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#7C3AED",
-    backgroundColor: "#7C3AED",
+    borderColor: "#0F4C5C",
+    backgroundColor: "#0F4C5C",
+    marginBottom: 8,
   },
   saveBtnText: {
     color: "#FFFFFF",
@@ -1450,7 +1448,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   resetBtn: {
-    backgroundColor: "#7C3AED",
+    backgroundColor: "#0F4C5C",
     borderRadius: 8,
     height: 52,
     flexDirection: "row",
