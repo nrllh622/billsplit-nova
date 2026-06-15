@@ -331,49 +331,71 @@ export default function Home() {
             {/* Tip Percent Chips */}
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>TIP PERCENTAGE</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.chipRow}
-              >
-                {PRESET_TIPS.map((p) => {
-                  const active = selectedTip === p;
-                  return (
-                    <Pressable
-                      key={p}
-                      testID={`tip-chip-${p}`}
-                      onPress={() => handleTipPress(p)}
-                      style={[styles.chip, active && styles.chipActive]}
-                    >
-                      <Text
-                        style={[
-                          styles.chipText,
-                          active && styles.chipTextActive,
-                        ]}
+              <View style={styles.chipGrid}>
+                <View style={styles.chipGridRow}>
+                  {[10, 15, 18].map((p) => {
+                    const active = selectedTip === p;
+                    return (
+                      <Pressable
+                        key={p}
+                        testID={`tip-chip-${p}`}
+                        onPress={() => handleTipPress(p)}
+                        style={[styles.chip, active && styles.chipActive]}
                       >
-                        {p}%
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-                <Pressable
-                  testID="tip-chip-custom"
-                  onPress={() => handleTipPress("custom")}
-                  style={[
-                    styles.chip,
-                    selectedTip === "custom" && styles.chipActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      selectedTip === "custom" && styles.chipTextActive,
-                    ]}
-                  >
-                    Custom
-                  </Text>
-                </Pressable>
-              </ScrollView>
+                        <Text
+                          style={[
+                            styles.chipText,
+                            active && styles.chipTextActive,
+                          ]}
+                        >
+                          {p}%
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              <View style={styles.chipGridRow}>
+  {[20, 25].map((p) => {
+    const active = selectedTip === p;
+    return (
+      <Pressable
+        key={p}
+        testID={`tip-chip-${p}`}
+        onPress={() => handleTipPress(p)}
+        style={[styles.chip, active && styles.chipActive]}
+      >
+        <Text
+          style={[
+            styles.chipText,
+            active && styles.chipTextActive,
+          ]}
+        >
+          {p}%
+        </Text>
+      </Pressable>
+    );
+  })}
+  <Pressable
+    testID="tip-chip-custom"
+    onPress={() => handleTipPress("custom")}
+    style={[
+      styles.chip,
+      styles.chipCustom,
+      selectedTip === "custom" && styles.chipActive,
+    ]}
+  >
+    <Text
+      style={[
+        styles.chipText,
+        selectedTip === "custom" && styles.chipTextActive,
+      ]}
+    >
+      Custom
+    </Text>
+  </Pressable>
+</View>
+              
+              </View>
               {selectedTip === "custom" && (
                 <View style={styles.customTipWrap}>
                   <TextInput
@@ -1153,22 +1175,28 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontVariant: ["tabular-nums"],
   },
-  // Chip row
-  chipRow: {
+  // Chip grid (3x2)
+  chipGrid: {
     gap: 8,
-    paddingRight: 4,
+  },
+ chipGridRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  chipCustom: {
+    borderColor: COLORS.brand,
+    borderWidth: 1.5,
   },
   chip: {
-    height: 40,
-    paddingHorizontal: 16,
+    flex: 1,
+    height: 44,
+    paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
     backgroundColor: COLORS.surfaceSecondary,
     alignItems: "center",
     justifyContent: "center",
-    flexShrink: 0,
-    minWidth: 64,
   },
   chipActive: {
     backgroundColor: COLORS.brand,
