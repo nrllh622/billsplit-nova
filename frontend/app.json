@@ -31,3 +31,26 @@
         {
           "image": "./assets/images/splash-image.png",
           "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000"
+        }
+      ],
+      "expo-font",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-2984878117732696~6305548305"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2114324a-9c21-4c26-9522-2919c1d7ba7c"
+      }
+    }
+  }
+}
