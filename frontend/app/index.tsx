@@ -825,14 +825,15 @@ export default function Home() {
               keyboardShouldPersistTaps="handled"
             >
               {Array.from({ length: people }).map((_, idx) => {
+                const personCur = personCurrencies[idx] || currency;
                 return (
                   <Text key={idx} style={{ color: "white", padding: 10 }}>
-                    Person {idx + 1}
+                    Person {idx + 1} - {personCur.code}
                   </Text>
                 );
               })}
               <Text style={styles.splitHint}>
-                Simple loop test
+                Test with personCur
               </Text>
             </ScrollView>
           </View>
