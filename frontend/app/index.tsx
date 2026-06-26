@@ -836,13 +836,59 @@ export default function Home() {
                 const personAmount = calc.totalPerPerson * rate;
                 const personTip = calc.tipPerPerson * rate;
                 return (
-                  <Text key={idx} style={{ color: "white", padding: 10 }}>
-                    Person {idx + 1} - {personCur.code} - amount {personAmount} - tip {personTip}
-                  </Text>
+                  <View
+                    key={idx}
+                    style={styles.personCard}
+                    testID={`person-row-${idx}`}
+                  >
+                    <View style={styles.personHeader}>
+                      <View style={styles.personAvatar}>
+                        <Text style={styles.personAvatarText}>{idx + 1}</Text>
+                      </View>
+                      <Text style={styles.personLabel}>
+                        Person {idx + 1}
+                      </Text>
+                      <View style={{ flex: 1 }} />
+                      <Pressable
+                        testID={`person-currency-button-${idx}`}
+                        onPress={() => {
+                          setPersonPickerIndex(idx);
+                          setPickerMode("person");
+                          setPickerOpen(true);
+                        }}
+                        style={({ pressed }) => [
+                          styles.personCurrencyChip,
+                          pressed && { opacity: 0.7 },
+                        ]}
+                      >
+                        <Text style={styles.personCurrencyFlag}>
+                          {getCurrencyFlag(personCur.code)}
+                        </Text>
+                        <Text style={styles.personCurrencyCode}>
+                          {personCur.code}
+                        </Text>
+                        <Ionicons
+                          name="chevron-down"
+                          size={12}
+                          color={COLORS.onSurfaceTertiary}
+                        />
+                      </Pressable>
+                    </View>
+                    <View style={styles.personAmounts}>
+                      <Text style={styles.personAmountLabel}>THEY PAY</Text>
+                      <Text
+                        style={styles.personAmountBig}
+                        testID={`person-amount-${idx}`}
+                      >
+                        {personCur.symbol}
+                        {personAmount.toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
                 );
               })}
               <Text style={styles.splitHint}>
-                Test with personAmount and personTip
+                Test without conditional rendering
               </Text>
             </ScrollView>
           </View>
