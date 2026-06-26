@@ -826,14 +826,21 @@ export default function Home() {
             >
               {Array.from({ length: people }).map((_, idx) => {
                 const personCur = personCurrencies[idx] || currency;
+                const isBase = personCur.code === currency.code;
+                let rate = 1;
+                if (!isBase) {
+                  const norm = personCur.code.replace(/\d+$/, "");
+                  const r = allRates[norm];
+                  if (typeof r === "number") rate = r;
+                }
                 return (
                   <Text key={idx} style={{ color: "white", padding: 10 }}>
-                    Person {idx + 1} - {personCur.code}
+                    Person {idx + 1} - {personCur.code} - rate {rate}
                   </Text>
                 );
               })}
               <Text style={styles.splitHint}>
-                Test with personCur
+                Test with rate
               </Text>
             </ScrollView>
           </View>
