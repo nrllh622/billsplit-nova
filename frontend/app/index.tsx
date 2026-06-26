@@ -254,8 +254,388 @@ export default function Home() {
   }, [search]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#1a1a2e", alignItems: "center", justifyContent: "center" }}>
-      <Text style={{ color: "white", fontSize: 24 }}>Minimal Test OK</Text>
+    <View style={[styles.root, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={styles.header} testID="app-header">
+        <View>
+          <Text style={styles.brandTitle}>BillSplit Nova</Text>
+          <Text style={styles.brandSub}>PRO · UTILITY</Text>
+        </View>
+        <Pressable
+          testID="history-button"
+          onPress={() => router.push("/history")}
+          style={({ pressed }) => [
+            styles.iconBtn,
+            pressed && { opacity: 0.6 },
+          ]}
+          hitSlop={8}
+        >
+          <Ionicons name="time-outline" size={20} color={COLORS.brand} />
+        </Pressable>
+      </View>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+      >
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            padding: 16,
+            paddingBottom: 200 + insets.bottom,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          onScrollBeginDrag={Keyboard.dismiss}
+        >
+            {/* Bill Amount */}
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>BILL AMOUNT</Text>
+              <View style={styles.billRow}>
+                <Pressable
+                  testID="currency-picker-button"
+                  style={({ pressed }) => [
+                    styles.currencyBtn,
+                    pressed && { backgroundColor: COLORS.surfaceTertiary },
+                  ]}
+                  onPress={() => {
+                    setPickerMode("base");
+                    setPickerOpen(true);
+                  }}
+                >
+                  <Text style={styles.currencyFlag}>{getCurrencyFlag(currency.code)}</Text>
+                  <Text style={styles.currencyCode}>{currency.code}</Text>
+                  <Ionicons
+                    name="chevron-down"
+                    size={14}
+                    color={COLORS.onSurfaceTertiary}
+                  />
+                </Pressable>
+                <View style={styles.billInputWrap}>
+                  <Text style={styles.billPrefix}>{currency.symbol}</Text>
+                  <TextInput
+                    testID="bill-amount-input"
+                    value={bill}
+                    onChangeText={setBill}
+                    placeholder="0.00"
+                    placeholderTextColor={COLORS.onSurfaceTertiary}
+                    keyboardType="decimal-pad"
+                    style={styles.billInput}
+                    selectionColor={COLORS.brand}
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Tip Percent Chips */}
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>TIP PERCENTAGE</Text>
+              <View style={styles.chipGrid}>
+                <View style={styles.chipGridRow}>
+                  {[10, 15, 18].map((p) => {
+                    const active = selectedTip === p;
+                    return (
+                      <Pressable
+                        key={p}
+                        testID={`tip-chip-${p}`}
+                        onPress={() => handleTipPress(p)}
+                        style={[styles.chip, active && styles.chipActive]}
+                      >
+                        <Text
+                          style={[
+                            styles.chipText,
+                            active && styles.chipTextActive,
+                          ]}
+                        >
+                          {p}%
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              <View style={styles.chipGridRow}>
+  {[20, 25].map((p) => {
+    const active = selectedTip === p;
+    return (
+      <Pressable
+        key={p}
+        testID={`tip-chip-${p}`}
+        onPress={() => handleTipPress(p)}
+        style={[styles.chip, active && styles.chipActive]}
+      >
+        <Text
+          style={[
+            styles.chipText,
+            active && styles.chipTextActive,
+          ]}
+        >
+          {p}%
+        </Text>
+      </Pressable>
+    );
+  })}
+  <Pressable
+    testID="tip-chip-custom"
+    onPress={() => handleTipPress("custom")}
+    style={[
+      styles.chip,
+      styles.chipCustom,
+      selectedTip === "custom" && styles.chipActive,
+    ]}
+  >
+    <Text
+      style={[
+        styles.chipText,
+        selectedTip === "custom" && styles.chipTextActive,
+      ]}
+    >
+      Custom
+    </Text>
+  </Pressable>
+</View>
+              
+              </View>
+              {selectedTip === "custom" && (
+                <View style={styles.customTipWrap}>
+                  <TextInput
+                    testID="custom-tip-input"
+                    value={customTip}
+                    onChangeText={setCustomTip}
+                    placeholder="Enter custom %"
+                    placeholderTextColor={COLORS.onSurfaceTertiary}
+                    keyboardType="decimal-pad"
+                    style={styles.customTipInput}
+                    selectionColor={COLORS.brand}
+                  />
+                  <Text style={styles.customTipSuffix}>%</Text>
+                </View>
+              )}
+            </View>
+
+            {/* People stepper */}
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>NUMBER OF PEOPLE</Text>
+              <View style={styles.stepperRow}>
+                <Pressable
+                  testID="people-decrement"
+                  onPress={() => setPeople((p) => Math.max(1, p - 1))}
+                  style={({ pressed }) => [
+                    styles.stepBtn,
+                    pressed && { backgroundColor: COLORS.surfaceTertiary },
+                  ]}
+                >
+                  <Ionicons name="remove" size={22} color={COLORS.brand} />
+                </Pressable>
+                <View style={styles.stepValueWrap}>
+                  <Text style={styles.stepValue} testID="people-count">
+                    {people}
+                  </Text>
+                  <Text style={styles.stepValueSub}>
+                    {people === 1 ? "person" : "people"}
+                  </Text>
+                </View>
+                <Pressable
+                  testID="people-increment"
+                  onPress={() => setPeople((p) => Math.min(99, p + 1))}
+                  style={({ pressed }) => [
+                    styles.stepBtn,
+                    pressed && { backgroundColor: COLORS.surfaceTertiary },
+                  ]}
+                >
+                  <Ionicons name="add" size={22} color={COLORS.brand} />
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Round up toggle */}
+            <View style={[styles.section, styles.toggleRow]}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.toggleLabel}>ROUND UP</Text>
+                <Text style={styles.toggleSub}>
+                  Round total bill up to nearest whole.
+                </Text>
+              </View>
+              <Switch
+                testID="round-up-switch"
+                value={roundUp}
+                onValueChange={setRoundUp}
+                trackColor={{ false: COLORS.surfaceTertiary, true: COLORS.brandTertiary }}
+                thumbColor={roundUp ? COLORS.brand : "#7C7C8E"}
+                ios_backgroundColor={COLORS.surfaceTertiary}
+              />
+            </View>
+
+            {/* Live Results Card (purple) */}
+            <View style={styles.resultsCard} testID="results-card">
+              <View style={styles.resultsHeader}>
+                <Ionicons name="cash-outline" size={14} color="#FFFFFF" />
+                <Text style={styles.resultsHeaderText}>RESULT</Text>
+                <View style={{ flex: 1 }} />
+                <Text style={styles.resultsHeaderMeta}>
+                  {tipPercent}% · {people} {people === 1 ? "person" : "people"}
+                </Text>
+              </View>
+
+              {/* FX / display currency switcher */}
+              <View style={styles.fxRow}>
+                <Text style={styles.fxLabel}>SHOW IN</Text>
+                <Pressable
+                  testID="display-currency-button"
+                  onPress={() => {
+                    setPickerMode("display");
+                    setPickerOpen(true);
+                  }}
+                  style={({ pressed }) => [
+                    styles.fxChip,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                >
+                  <Text style={styles.fxFlag}>{getCurrencyFlag(displayCurrency.code)}</Text>
+                  <Text style={styles.fxCode}>{displayCurrency.code}</Text>
+                  <Ionicons
+                    name="swap-horizontal"
+                    size={12}
+                    color="#FFFFFF"
+                  />
+                </Pressable>
+                {isConverting && (
+                  <Text
+                    style={styles.fxStatusText}
+                    testID="fx-status"
+                  >
+                    {fxStatus === "loading"
+                      ? "Loading rate…"
+                      : fxStatus === "error"
+                        ? "Rate unavailable"
+                        : `1 ${currency.code} = ${fxRate.toFixed(4)} ${displayCurrency.code}`}
+                  </Text>
+                )}
+              </View>
+
+              <View style={styles.heroBlock}>
+                <Text style={styles.heroLabel}>TOTAL PER PERSON</Text>
+                <Text style={styles.heroMetric} testID="total-per-person">
+                  {fmtDisplay(aTotalPerPerson)}
+                </Text>
+                {isConverting && (
+                  <Text style={styles.heroSub} testID="total-per-person-base">
+                    ≈ {fmtBase(calc.totalPerPerson)} {currency.code}
+                  </Text>
+                )}
+              </View>
+
+              <View style={styles.subBlock}>
+                <Text style={styles.subLabel}>TIP PER PERSON</Text>
+                <Text style={styles.subMetric} testID="tip-per-person">
+                  {fmtDisplay(aTipPerPerson)}
+                </Text>
+                {isConverting && (
+                  <Text style={styles.subSub} testID="tip-per-person-base">
+                    ≈ {fmtBase(calc.tipPerPerson)} {currency.code}
+                  </Text>
+                )}
+              </View>
+
+              <View style={styles.resultsFooter}>
+                <View style={styles.footerCell}>
+                  <Text style={styles.footerLabel}>TOTAL TIP</Text>
+                  <Text style={styles.footerMetric} testID="total-tip">
+                    {fmtDisplay(aTotalTip)}
+                  </Text>
+                  {isConverting && (
+                    <Text style={styles.footerSub}>
+                      ≈ {fmtBase(calc.totalTip)}
+                    </Text>
+                  )}
+                </View>
+                <View style={styles.footerDivider} />
+                <View style={styles.footerCell}>
+                  <Text style={styles.footerLabel}>TOTAL BILL</Text>
+                  <Text style={styles.footerMetric} testID="total-bill">
+                    {fmtDisplay(aTotalBill)}
+                  </Text>
+                  {isConverting && (
+                    <Text style={styles.footerSub}>
+                      ≈ {fmtBase(calc.totalBill)}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            </View>
+
+            {/* Split View button (multi-currency split) */}
+            {people > 1 && (
+              <Pressable
+                testID="split-view-button"
+                onPress={() => setSplitOpen(true)}
+                style={({ pressed }) => [
+                  styles.splitBtn,
+                  pressed && { backgroundColor: COLORS.surfaceTertiary },
+                ]}
+              >
+                <Ionicons name="people-outline" size={18} color={COLORS.brand} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.splitBtnText}>Split View</Text>
+                  <Text style={styles.splitBtnSub}>
+                    Each of the {people} people in their own currency
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={COLORS.brand} />
+              </Pressable>
+            )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      {/* Sticky Reset Footer */}
+      <View
+        style={[
+          styles.footer,
+          {
+            paddingBottom: Math.max(insets.bottom, 12),
+          },
+        ]}
+      >
+        <Pressable
+          testID="save-button"
+          onPress={handleSave}
+          disabled={billNum <= 0}
+          style={({ pressed }) => [
+            styles.saveBtn,
+            billNum <= 0 && { opacity: 0.4 },
+            pressed && billNum > 0 && { opacity: 0.85 },
+          ]}
+        >
+          <Ionicons name="bookmark-outline" size={16} color="#FFFFFF" />
+          <Text style={styles.saveBtnText}>Save to History</Text>
+        </Pressable>
+        <Pressable
+          testID="reset-button"
+          onPress={handleReset}
+          style={({ pressed }) => [
+            styles.resetBtn,
+            pressed && { opacity: 0.85 },
+          ]}
+        >
+          <Ionicons name="refresh" size={18} color="#FFFFFF" />
+          <Text style={styles.resetBtnText}>RESET</Text>
+        </Pressable>
+      </View>
+
+      {/* Toast */}
+      {savedToast && (
+        <View
+          style={[
+            styles.toast,
+            { bottom: insets.bottom + 88, pointerEvents: "none" },
+          ]}
+          testID="save-toast"
+        >
+          <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
+          <Text style={styles.toastText}>Saved to history</Text>
+        </View>
+      )}
+
     </View>
   );
 }
