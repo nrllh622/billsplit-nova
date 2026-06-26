@@ -636,6 +636,137 @@ export default function Home() {
         </View>
       )}
 
+      {/* Currency Picker Modal */}
+      <Modal
+        visible={pickerOpen}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setPickerOpen(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setPickerOpen(false)}
+          />
+          <View
+            style={[
+              styles.modalSheet,
+              { paddingBottom: Math.max(insets.bottom, 12) },
+            ]}
+            testID="currency-picker-modal"
+          >
+            <View style={styles.modalHandle} />
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={styles.modalTitle}>
+                  {pickerMode === "display"
+                    ? "Show Results In"
+                    : pickerMode === "person"
+                      ? `Currency for Person ${personPickerIndex + 1}`
+                      : "Bill Currency"}
+                </Text>
+                <Text style={styles.modalSubtitle}>
+                  {pickerMode === "display"
+                    ? "Convert results to this currency"
+                    : pickerMode === "person"
+                      ? "Their share will be shown in this currency"
+                      : "Currency you're entering the bill in"}
+                </Text>
+              </View>
+              <Pressable
+                testID="currency-modal-close"
+                onPress={() => setPickerOpen(false)}
+                hitSlop={10}
+              >
+                <Ionicons name="close" size={22} color={COLORS.onSurface} />
+              </Pressable>
+            </View>
+            <View style={styles.searchWrap}>
+              <Ionicons
+                name="search"
+                size={16}
+                color={COLORS.onSurfaceTertiary}
+              />
+              <TextInput
+                testID="currency-search-input"
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Search code or name"
+                placeholderTextColor={COLORS.onSurfaceTertiary}
+                style={styles.searchInput}
+                selectionColor={COLORS.brand}
+                autoCorrect={false}
+              />
+            </View>
+            <FlatList
+              data={filteredCurrencies}
+              keyExtractor={(item, idx) => `${item.code}-${idx}`}
+              keyboardShouldPersistTaps="handled"
+              ItemSeparatorComponent={() => (
+                <View style={styles.itemSeparator} />
+              )}
+              renderItem={({ item }) => {
+                const activeCode =
+                  pickerMode === "display"
+                    ? displayCurrency.code
+                    : pickerMode === "person"
+                      ? personCurrencies[personPickerIndex]?.code
+                      : currency.code;
+                const selected = item.code === activeCode;
+                return (
+                  <Pressable
+                    testID={`currency-row-${item.code}`}
+                    onPress={() => {
+                      if (pickerMode === "display") {
+                        setDisplayCurrency(item);
+                      } else if (pickerMode === "person") {
+                        setPersonCurrencies((prev) => {
+                          const next = [...prev];
+                          next[personPickerIndex] = item;
+                          return next;
+                        });
+                      } else {
+                        setCurrency(item);
+                        // keep display in sync if it was equal before
+                        setDisplayCurrency((prev) =>
+                          prev.code === currency.code ? item : prev,
+                        );
+                      }
+                      setPickerOpen(false);
+                      setSearch("");
+                    }}
+                    style={({ pressed }) => [
+                      styles.currencyRow,
+                      pressed && { backgroundColor: COLORS.surfaceTertiary },
+                    ]}
+                  >
+                    <Text style={styles.currencyRowFlag}>{getCurrencyFlag(item.code)}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.currencyRowCode}>{item.code}</Text>
+                      <Text style={styles.currencyRowName}>{item.name}</Text>
+                    </View>
+                    <Text style={styles.currencyRowSymbol}>{item.symbol}</Text>
+                    {selected && (
+                      <Ionicons
+                        name="checkmark"
+                        size={18}
+                        color={COLORS.brand}
+                        style={{ marginLeft: 8 }}
+                      />
+                    )}
+                  </Pressable>
+                );
+              }}
+              ListEmptyComponent={
+                <View style={styles.emptyWrap}>
+                  <Text style={styles.emptyText}>No currencies match</Text>
+                </View>
+              }
+            />
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
