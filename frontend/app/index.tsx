@@ -49,8 +49,9 @@ const PRESET_TIPS = [10, 15, 18, 20, 25];
 type ChipValue = number | "custom";
 
 export default function Home() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
+  // TEMP TEST: hooks disabled to isolate crash
+  const router = { push: (_path: string) => {} } as any;
+  const insets = { top: 24, bottom: 24, left: 0, right: 0 } as any;
 
   const [bill, setBill] = useState<string>("");
   const [selectedTip, setSelectedTip] = useState<ChipValue>(18);
