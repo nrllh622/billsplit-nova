@@ -824,8 +824,15 @@ export default function Home() {
               contentContainerStyle={{ paddingBottom: 16 }}
               keyboardShouldPersistTaps="handled"
             >
+              {Array.from({ length: people }).map((_, idx) => {
+                return (
+                  <Text key={idx} style={{ color: "white", padding: 10 }}>
+                    Person {idx + 1}
+                  </Text>
+                );
+              })}
               <Text style={styles.splitHint}>
-                Map loop removed for testing
+                Simple loop test
               </Text>
             </ScrollView>
           </View>
