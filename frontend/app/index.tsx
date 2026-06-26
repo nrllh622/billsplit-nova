@@ -883,12 +883,25 @@ export default function Home() {
                         {personCur.symbol}
                         {personAmount.toFixed(2)}
                       </Text>
+                      {!isBase && (
+                        <Text style={styles.personAmountSub}>
+                          ≈ {fmtBase(calc.totalPerPerson)} {currency.code} · tip{" "}
+                          {personCur.symbol}
+                          {personTip.toFixed(2)}
+                        </Text>
+                      )}
+                      {isBase && (
+                        <Text style={styles.personAmountSub}>
+                          Tip {fmtBase(calc.tipPerPerson)}
+                        </Text>
+                      )}
                     </View>
                   </View>
                 );
               })}
               <Text style={styles.splitHint}>
-                Test without conditional rendering
+                Tap a flag to change a person&apos;s currency. Rates are live from
+                exchangerate-api.
               </Text>
             </ScrollView>
           </View>
@@ -897,6 +910,7 @@ export default function Home() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   root: {
     flex: 1,
