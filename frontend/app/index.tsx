@@ -833,14 +833,16 @@ export default function Home() {
                   const r = allRates[norm];
                   if (typeof r === "number") rate = r;
                 }
+                const personAmount = calc.totalPerPerson * rate;
+                const personTip = calc.tipPerPerson * rate;
                 return (
                   <Text key={idx} style={{ color: "white", padding: 10 }}>
-                    Person {idx + 1} - {personCur.code} - rate {rate}
+                    Person {idx + 1} - {personCur.code} - amount {personAmount} - tip {personTip}
                   </Text>
                 );
               })}
               <Text style={styles.splitHint}>
-                Test with rate
+                Test with personAmount and personTip
               </Text>
             </ScrollView>
           </View>
