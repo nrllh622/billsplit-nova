@@ -35,13 +35,7 @@
           "backgroundColor": "#000"
         }
       ],
-      "expo-font",
-      [
-        "react-native-google-mobile-ads",
-        {
-          "androidAppId": "ca-app-pub-2984878117732696~6305548305"
-        }
-      ]
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
