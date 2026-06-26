@@ -22,12 +22,6 @@ export const currencyFlags: Record<string, string> = {
   COP: "🇨🇴", PEN: "🇵🇪", ARS: "🇦🇷", UAH: "🇺🇦", GEL: "🇬🇪",
 };
 
-export function getCurrencyFlag(code: string): string {
-  // Strip our internal numeric suffixes (e.g. EUR2 → EUR).
-  const base = code.replace(/\d+$/, "");
-  return currencyFlags[base] || CURRENCIES.find((c) => c.code === code)?.flag || "🏳️";
-}
-
 export const CURRENCIES: Currency[] = [
   { code: "USD", name: "US Dollar", symbol: "$", flag: "🇺🇸" },
   { code: "EUR", name: "Euro", symbol: "€", flag: "🇪🇺" },
@@ -203,3 +197,9 @@ export const CURRENCIES: Currency[] = [
   { code: "XPT", name: "Platinum Ounce", symbol: "Pt", flag: "🏳️" },
   { code: "XDR", name: "Special Drawing Rights", symbol: "SDR", flag: "🏳️" },
 ];
+
+export function getCurrencyFlag(code: string): string {
+  // Strip our internal numeric suffixes (e.g. EUR2 → EUR).
+  const base = code.replace(/\d+$/, "");
+  return currencyFlags[base] || CURRENCIES.find((c) => c.code === code)?.flag || "🏳️";
+}
