@@ -767,6 +767,70 @@ export default function Home() {
         </View>
       </Modal>
 
+      {/* Split View Modal — per-person currency */}
+      <Modal
+        visible={splitOpen}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setSplitOpen(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setSplitOpen(false)}
+          />
+          <View
+            style={[
+              styles.splitSheet,
+              { paddingBottom: Math.max(insets.bottom, 12) },
+            ]}
+            testID="split-view-modal"
+          >
+            <View style={styles.modalHandle} />
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={styles.modalTitle}>Split View</Text>
+                <Text style={styles.modalSubtitle}>
+                  Each person&apos;s share in their own currency
+                </Text>
+              </View>
+              <Pressable
+                testID="split-modal-close"
+                onPress={() => setSplitOpen(false)}
+                hitSlop={10}
+              >
+                <Ionicons name="close" size={22} color={COLORS.onSurface} />
+              </Pressable>
+            </View>
+
+            <View style={styles.splitSummary}>
+              <View style={styles.splitSummaryCell}>
+                <Text style={styles.splitSummaryLabel}>TOTAL BILL</Text>
+                <Text style={styles.splitSummaryValue}>
+                  {fmtBase(calc.totalBill)}
+                </Text>
+              </View>
+              <View style={styles.splitSummaryDivider} />
+              <View style={styles.splitSummaryCell}>
+                <Text style={styles.splitSummaryLabel}>BASE / PERSON</Text>
+                <Text style={styles.splitSummaryValue}>
+                  {fmtBase(calc.totalPerPerson)}
+                </Text>
+              </View>
+            </View>
+
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingBottom: 16 }}
+              keyboardShouldPersistTaps="handled"
+            >
+              <Text style={styles.splitHint}>
+                Map loop removed for testing
+              </Text>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
