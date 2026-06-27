@@ -27,6 +27,7 @@ import {
 } from "@/src/storage/store";
 import { fetchRatesForBase } from "@/src/utils/fx";
 import { useAnimatedNumber } from "@/src/hooks/use-animated-number";
+import mobileAds from "react-native-google-mobile-ads";
 
 const COLORS = {
   surface: "#1a1a2e",
@@ -79,6 +80,13 @@ export default function Home() {
   const [savedToast, setSavedToast] = useState<boolean>(false);
 
   const prefsLoadedRef = useRef(false);
+
+  // Initialize AdMob SDK once
+  useEffect(() => {
+    mobileAds()
+      .initialize()
+      .catch(() => {});
+  }, []);
 
   // Load persisted prefs
   useEffect(() => {
