@@ -27,7 +27,11 @@ import {
 } from "@/src/storage/store";
 import { fetchRatesForBase } from "@/src/utils/fx";
 import { useAnimatedNumber } from "@/src/hooks/use-animated-number";
-import mobileAds from "react-native-google-mobile-ads";
+import mobileAds, { BannerAd, BannerAdSize, TestIds } from "react-native-google-mobile-ads";
+
+const BANNER_AD_UNIT_ID = __DEV__
+  ? TestIds.BANNER
+  : "ca-app-pub-2984878117732696/8580357859";
 
 const COLORS = {
   surface: "#1a1a2e",
@@ -604,6 +608,13 @@ export default function Home() {
           },
         ]}
       >
+        <View style={styles.bannerWrap}>
+          <BannerAd
+            unitId={BANNER_AD_UNIT_ID}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+          />
+        </View>
         <Pressable
           testID="save-button"
           onPress={handleSave}
@@ -1482,6 +1493,10 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.border,
     paddingTop: 12,
     paddingHorizontal: 16,
+  },
+  bannerWrap: {
+    alignItems: "center",
+    marginBottom: 10,
   },
   resetBtn: {
     backgroundColor: "#0F4C5C",
