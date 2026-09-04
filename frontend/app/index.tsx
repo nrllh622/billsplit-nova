@@ -50,6 +50,7 @@ const COLORS = {
 };
 
 const PRESET_TIPS = [10, 15, 18, 20, 25];
+const MAX_CUSTOM_TIP_PERCENT = 500;
 
 type ChipValue = number | "custom";
 
@@ -155,7 +156,8 @@ export default function Home() {
   const tipPercent = useMemo(() => {
     if (selectedTip === "custom") {
       const v = parseFloat(customTip);
-      return isNaN(v) ? 0 : Math.max(0, v);
+      if (isNaN(v)) return 0;
+      return Math.min(MAX_CUSTOM_TIP_PERCENT, Math.max(0, v));
     }
     return selectedTip;
   }, [selectedTip, customTip]);
@@ -210,6 +212,20 @@ export default function Home() {
   );
 
   const isConverting = currency.code !== displayCurrency.code;
+
+  const handleCustomTipChange = useCallback((text: string) => {
+    // Allow only digits and a single decimal point while typing.
+    const cleaned = text.replace(/[^0-9.]/g, "");
+    const parts = cleaned.split(".");
+    const normalized =
+      parts.length > 2 ? `${parts[0]}.${parts.slice(1).join("")}` : cleaned;
+    const num = parseFloat(normalized);
+    if (!isNaN(num) && num > MAX_CUSTOM_TIP_PERCENT) {
+      setCustomTip(String(MAX_CUSTOM_TIP_PERCENT));
+      return;
+    }
+    setCustomTip(normalized);
+  }, []);
 
   const handleTipPress = useCallback((v: ChipValue) => {
     setSelectedTip(v);
@@ -285,6 +301,21 @@ export default function Home() {
           <Ionicons name="time-outline" size={20} color={COLORS.brand} />
         </Pressable>
       </View>
+
+      {/* Sticky compact summary — always visible without scrolling */}
+      {billNum > 0 && (
+        <View style={styles.stickySummary} testID="sticky-summary">
+          <View style={{ flex: 1 }}>
+            <Text style={styles.stickySummaryLabel}>PER PERSON</Text>
+            <Text style={styles.stickySummaryValue} testID="sticky-total-per-person">
+              {fmtDisplay(display.totalPerPerson)}
+            </Text>
+          </View>
+          <Text style={styles.stickySummaryMeta}>
+            {tipPercent}% · {people} {people === 1 ? "person" : "people"}
+          </Text>
+        </View>
+      )}
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -413,7 +444,7 @@ export default function Home() {
                   <TextInput
                     testID="custom-tip-input"
                     value={customTip}
-                    onChangeText={setCustomTip}
+                    onChangeText={handleCustomTipChange}
                     placeholder="Enter custom %"
                     placeholderTextColor={COLORS.onSurfaceTertiary}
                     keyboardType="decimal-pad"
@@ -965,6 +996,41 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surfaceSecondary,
     alignItems: "center",
     justifyContent: "center",
+  },
+  // Sticky compact summary bar (always visible under the header)
+  stickySummary: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    backgroundColor: "#0F4C5C",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    boxShadow: "0px 4px 12px rgba(15, 76, 92, 0.35)",
+    elevation: 6,
+  },
+  stickySummaryLabel: {
+    color: "#FFFFFF",
+    opacity: 0.7,
+    fontSize: 9,
+    letterSpacing: 2,
+    fontWeight: "700",
+    marginBottom: 2,
+  },
+  stickySummaryValue: {
+    color: "#FFFFFF",
+    fontSize: 22,
+    fontWeight: "800",
+    letterSpacing: -0.5,
+    fontVariant: ["tabular-nums"],
+  },
+  stickySummaryMeta: {
+    color: "#FFFFFF",
+    opacity: 0.75,
+    fontSize: 11,
+    fontWeight: "600",
+    letterSpacing: 0.5,
   },
   // Results card (purple hero)
   resultsCard: {

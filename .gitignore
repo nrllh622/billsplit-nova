@@ -86,3 +86,12 @@ android-sdk/
 credentials.json
 *.key
 .credentials
+
+# Emergent.sh scaffold (unused - app is fully client-side, no backend)
+.emergent/
+backend/
+
+# Crash logs and Expo config dumps (local debug artifacts)
+crash-log*.txt
+config-error.txt
+config-output.txt
