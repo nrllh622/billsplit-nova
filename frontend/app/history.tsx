@@ -10,6 +10,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
+import { BannerAd, BannerAdSize, TestIds } from "react-native-google-mobile-ads";
 
 import { CURRENCIES } from "@/src/data/currencies";
 import {
@@ -17,6 +18,10 @@ import {
   HistoryItem,
   loadHistory,
 } from "@/src/storage/store";
+
+const BANNER_AD_UNIT_ID = __DEV__
+  ? TestIds.BANNER
+  : "ca-app-pub-2984878117732696/8580357859";
 
 const COLORS = {
   surface: "#1a1a2e",
@@ -194,6 +199,20 @@ export default function HistoryScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      {/* Bottom banner ad */}
+      <View
+        style={[
+          styles.bannerWrap,
+          { paddingBottom: Math.max(insets.bottom, 12) },
+        ]}
+      >
+        <BannerAd
+          unitId={BANNER_AD_UNIT_ID}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+        />
+      </View>
     </View>
   );
 }
@@ -362,5 +381,13 @@ const styles = StyleSheet.create({
     color: COLORS.onSurfaceTertiary,
     fontSize: 13,
     textAlign: "center",
+  },
+  // Bottom banner ad
+  bannerWrap: {
+    alignItems: "center",
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    backgroundColor: COLORS.surface,
   },
 });

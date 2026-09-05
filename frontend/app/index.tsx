@@ -287,7 +287,6 @@ export default function Home() {
       <View style={styles.header} testID="app-header">
         <View>
           <Text style={styles.brandTitle}>BillSplit Nova</Text>
-          <Text style={styles.brandSub}>PRO · UTILITY</Text>
         </View>
         <Pressable
           testID="history-button"
@@ -326,7 +325,7 @@ export default function Home() {
           style={{ flex: 1 }}
           contentContainerStyle={{
             padding: 16,
-            paddingBottom: 200 + insets.bottom,
+            paddingBottom: 260 + insets.bottom,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -639,13 +638,6 @@ export default function Home() {
           },
         ]}
       >
-        <View style={styles.bannerWrap}>
-          <BannerAd
-            unitId={BANNER_AD_UNIT_ID}
-            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-          />
-        </View>
         <Pressable
           testID="save-button"
           onPress={handleSave}
@@ -670,6 +662,13 @@ export default function Home() {
           <Ionicons name="refresh" size={18} color="#FFFFFF" />
           <Text style={styles.resetBtnText}>RESET</Text>
         </Pressable>
+        <View style={styles.bannerWrap}>
+          <BannerAd
+            unitId={BANNER_AD_UNIT_ID}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+          />
+        </View>
       </View>
 
       {/* Toast */}
@@ -1038,7 +1037,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#0F4C5C",
-    padding: 20,
+    padding: 16,
     marginTop: 4,
     marginBottom: 16,
     boxShadow: "0px 8px 24px rgba(15, 76, 92, 0.35)",
@@ -1133,7 +1132,7 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   heroBlock: {
-    paddingBottom: 14,
+    paddingBottom: 10,
   },
   heroLabel: {
     color: "#FFFFFF",
@@ -1151,8 +1150,8 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   subBlock: {
-    paddingTop: 12,
-    paddingBottom: 14,
+    paddingTop: 10,
+    paddingBottom: 10,
     borderTopWidth: 1,
     borderTopColor: "rgba(9,9,13,0.18)",
   },
@@ -1201,14 +1200,14 @@ const styles = StyleSheet.create({
   },
   // Sections
   section: {
-    marginBottom: 16,
+    marginBottom: 10,
   },
   sectionLabel: {
     color: COLORS.onSurfaceTertiary,
     fontSize: 10,
     letterSpacing: 2,
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   // Bill row
   billRow: {
@@ -1224,7 +1223,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     borderRadius: 8,
     paddingHorizontal: 10,
-    paddingVertical: 12,
+    paddingVertical: 8,
     gap: 6,
   },
   currencyFlag: {
@@ -1257,7 +1256,7 @@ const styles = StyleSheet.create({
     color: COLORS.onSurface,
     fontSize: 22,
     fontWeight: "600",
-    paddingVertical: 12,
+    paddingVertical: 8,
     fontVariant: ["tabular-nums"],
   },
   // Chip grid (3x2)
@@ -1274,7 +1273,7 @@ const styles = StyleSheet.create({
   },
   chip: {
     flex: 1,
-    height: 44,
+    height: 40,
     paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
@@ -1297,7 +1296,7 @@ const styles = StyleSheet.create({
     color: COLORS.onBrand,
   },
   customTipWrap: {
-    marginTop: 10,
+    marginTop: 8,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.surfaceSecondary,
@@ -1310,7 +1309,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: COLORS.onSurface,
     fontSize: 16,
-    paddingVertical: 12,
+    paddingVertical: 8,
     fontWeight: "600",
   },
   customTipSuffix: {
@@ -1329,8 +1328,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   stepBtn: {
-    width: 56,
-    height: 56,
+    width: 48,
+    height: 48,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1364,7 +1363,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     borderRadius: 8,
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   toggleLabel: {
     color: COLORS.onSurface,
@@ -1562,7 +1561,7 @@ const styles = StyleSheet.create({
   },
   bannerWrap: {
     alignItems: "center",
-    marginBottom: 10,
+    marginTop: 10,
   },
   resetBtn: {
     backgroundColor: "#0F4C5C",
