@@ -100,3 +100,4 @@ config-output.txt
 Claude outputs/
 yarn.lock
 frontend/yarn.lock
+frontend/.metro-cache/
