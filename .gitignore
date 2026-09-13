@@ -95,3 +95,8 @@ backend/
 crash-log*.txt
 config-error.txt
 config-output.txt
+
+# Local-only folders (not part of the app)
+Claude outputs/
+yarn.lock
+frontend/yarn.lock
